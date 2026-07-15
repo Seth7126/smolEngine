@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository  
         uses: actions/checkout@v4  
         with:  
-          submodules: false   # 不递归拉取旧版 vcpkg 子模块  
+          submodules: false  
   
       - name: Clone latest vcpkg  
         shell: pwsh  
@@ -42,7 +42,7 @@ jobs:
         env:  
           VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"  
         run: |  
-          vcpkg\vcpkg.exe install opengl glew glm "devil[libjpeg,libpng]" assimp sdl2 "imgui[opengl3-binding,sdl2-binding,docking-experimental]" --recurse --triplet x64-windows  
+          vcpkg\vcpkg.exe install --triplet x64-windows --x-manifest-root=. --x-install-root=vcpkg\installed  
   
       - name: Build solution (Release|x64)  
         shell: cmd  
