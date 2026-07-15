@@ -16,7 +16,12 @@ jobs:
       - name: Checkout repository  
         uses: actions/checkout@v4  
         with:  
-          submodules: recursive  
+          submodules: false   # 不递归拉取旧版 vcpkg 子模块  
+  
+      - name: Clone latest vcpkg  
+        shell: pwsh  
+        run: |  
+          git clone --depth=1 https://github.com/microsoft/vcpkg.git vcpkg  
   
       - name: Bootstrap vcpkg  
         shell: pwsh  
@@ -36,16 +41,13 @@ jobs:
         shell: pwsh  
         env:  
           VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"  
-          X_VCPKG_REGISTRIES_CACHE: ${{ github.workspace }}\vcpkg_registries_cache  
         run: |  
-          New-Item -ItemType Directory -Force -Path "${{ github.workspace }}\vcpkg_registries_cache"  
           vcpkg\vcpkg.exe install opengl glew glm "devil[libjpeg,libpng]" assimp sdl2 "imgui[opengl3-binding,sdl2-binding,docking-experimental]" --recurse --triplet x64-windows  
   
       - name: Build solution (Release|x64)  
         shell: cmd  
         env:  
           VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"  
-          X_VCPKG_REGISTRIES_CACHE: ${{ github.workspace }}\vcpkg_registries_cache  
         run: msbuild smolGameMaker.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal  
   
       - name: Collect artifacts  
