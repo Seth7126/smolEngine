@@ -27,27 +27,24 @@ jobs:
         shell: pwsh  
         run: vcpkg\bootstrap-vcpkg.bat -disableMetrics  
   
-      - name: Export GitHub Actions cache environment variables  
-        uses: actions/github-script@v7  
+      - name: Cache vcpkg downloads  
+        uses: actions/cache@v4  
         with:  
-          script: |  
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');  
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');  
+          path: vcpkg/downloads  
+          key: vcpkg-downloads-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'vcpkg-configuration.json') }}  
+          restore-keys: |  
+            vcpkg-downloads-${{ runner.os }}-  
   
       - name: Setup MSBuild  
         uses: microsoft/setup-msbuild@v2  
   
       - name: Install vcpkg dependencies  
         shell: pwsh  
-        env:  
-          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"  
         run: |  
           vcpkg\vcpkg.exe install --triplet x64-windows --x-manifest-root=. --x-install-root=vcpkg\installed  
   
       - name: Build solution (Release|x64)  
         shell: cmd  
-        env:  
-          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"  
         run: msbuild smolGameMaker.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal  
   
       - name: Collect artifacts  
