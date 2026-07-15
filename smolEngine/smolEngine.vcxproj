@@ -148,10 +148,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
-    <PreBuildEvent>
-      <Command>call $(SolutionDir)\vcpkg\bootstrap-vcpkg.bat
-$(SolutionDir)\vcpkg\vcpkg.exe install opengl glew glm --recurse --triplet x64-windows</Command>
-    </PreBuildEvent>
     <Lib>
       <AdditionalDependencies>OpenGL32.lib;GLU32.lib;DevIL.lib;assimp-vc142-mt.lib</AdditionalDependencies>
     </Lib>
