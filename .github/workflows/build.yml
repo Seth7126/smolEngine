@@ -9,8 +9,11 @@ on:
   
 jobs:  
   windows:  
-    name: windows (Release)  
+    name: windows (${{ matrix.configuration }})  
     runs-on: windows-2022  
+    strategy:  
+      matrix:  
+        configuration: [Release, Debug]  
   
     steps:  
       - name: Checkout repository  
@@ -43,23 +46,23 @@ jobs:
         run: |  
           vcpkg\vcpkg.exe install --triplet x64-windows --x-manifest-root=. --x-install-root=vcpkg\installed  
   
-      - name: Build solution (Release|x64)  
+      - name: Build solution (${{ matrix.configuration }}|x64)  
         shell: cmd  
-        run: msbuild smolGameMaker.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal  
+        run: msbuild smolGameMaker.sln /p:Configuration=${{ matrix.configuration }} /p:Platform=x64 /m /v:minimal  
   
       - name: Collect artifacts  
         shell: pwsh  
         run: |  
           New-Item -ItemType Directory -Force -Path artifact | Out-Null  
-          Copy-Item "x64\Release\smolEditor.exe" artifact\ -ErrorAction Stop  
-          Get-ChildItem "x64\Release\*.dll" | Copy-Item -Destination artifact\  
+          Copy-Item "x64\${{ matrix.configuration }}\smolEditor.exe" artifact\ -ErrorAction Stop  
+          Get-ChildItem "x64\${{ matrix.configuration }}\*.dll" | Copy-Item -Destination artifact\  
           if (Test-Path "smolEditor\Assets") { Copy-Item "smolEditor\Assets" "artifact\Assets" -Recurse }  
           Get-ChildItem artifact -Recurse | Select-Object FullName  
   
       - name: Upload artifact  
         uses: actions/upload-artifact@v4  
         with:  
-          name: smolEditor-win64-release  
+          name: smolEditor-win64-${{ matrix.configuration }}  
           path: artifact/  
           if-no-files-found: error  
   
